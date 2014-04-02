@@ -11,13 +11,16 @@ public class TCPReader implements Runnable {
 	private final Socket socket;
 	private final InputReader input;
 	private boolean running = true;
-
+	private Client client;
 	private MyBlockingQueue<Command> buff;
 	
 	public TCPReader(Socket socket, MyBlockingQueue<Command> buff) throws IOException {
 		this.socket = socket;
 		this.input = new InputReader(socket.getInputStream());
 		this.buff = buff;
+		this.client = new Client(socket.getOutputStream());
+		
+		buff.pushBack(new Command(client, CommandID.NEWCLIENT, null, null));
 	}
 
 	@Override
@@ -27,18 +30,22 @@ public class TCPReader implements Runnable {
 			while (running) {
 				try {
 					readExecuteCommand();
-				} catch (InputFormatException e) {
+				} 
+				catch (InputFormatException e) {
 					System.err.println("Invalid command");
 				}
 			}
-		} catch (IOException e) {
+		} 
+		catch (IOException e) {
 			System.err.println("Error while reading client input");
 			e.printStackTrace(System.err);
-		} finally {
+		} 
+		finally {
 			if (socket != null && !socket.isClosed()) {
 				try {
 					socket.close();
-				} catch (IOException e) {
+				} 
+				catch (IOException e) {
 					e.printStackTrace(System.err);
 				}
 			}
@@ -48,39 +55,16 @@ public class TCPReader implements Runnable {
 	private void readExecuteCommand() throws IOException, InputFormatException {
 		input.readCommand();
 		CommandID command = input.getCommandId();
-
+		
 		switch (command) {
 			case ENDOFCLIENT:
 				running = false;
-				break;
 			
 			default:
-				Command cmd = new Command(command, input.getMessage());
-				buff.pushBack(command);
+				Command cmd = new Command(client, command, input.getMessage(), input.getTopic());
+				buff.pushBack(cmd);
 				break;
 			
 		}
 	}
-	
-	private void handleNewClient() {
-		// noop
-	}
-
-	private void handleSubscribe() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void handleUnsubscribe() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private void handlePublish() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	
-
 }
