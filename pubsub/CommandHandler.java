@@ -77,16 +77,14 @@ public class CommandHandler implements Runnable {
 
 	private void publish(String topic, String message) {
 		
-		if(!subscriptions.hasTopic(topic)) {
-			System.err.println("Client is trying to publish to unexisting subject");
-			return;
-		}
-		
-		
-		String data = topic + " " + message;
-		for(Client client: subscriptions.get(topic)) {
-			client.sendMessage(data);
-		}
+		final String data = topic + " " + message;
+		subscriptions.iterateSubject(topic, new SubscriptionsStore.Callback() {
+			@Override
+			public void run(Client c) {
+				// thread-safe iteration
+				c.sendMessage(data);
+			}
+		});
 	}
 	
 

@@ -10,7 +10,7 @@ import java.util.Set;
  * Represents a client
  *
  */
-public class Client {
+public class Client { 
 	
 	/**
 	 * 	The output stream to communicate with the client

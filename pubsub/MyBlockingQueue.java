@@ -5,6 +5,12 @@ import java.util.List;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Generic blocking queue implementing the producer/consummer problem:
+ * one producer at a time can add something to the queue,
+ * one consummer at a time can grab the last message on the queue
+ *
+ */
 public class MyBlockingQueue<T> {
 	private ReentrantLock mutex = new ReentrantLock();
 	private Condition canRead = mutex.newCondition();
@@ -16,11 +22,14 @@ public class MyBlockingQueue<T> {
 	
 	public static final int MAX_SIZE = 100;
 	
-	
-	public void pushBack(T cmd) {
+	/**
+	 * Adds an element at the end of the queue
+	 * @param el
+	 */
+	public void pushBack(T el) {
 		try {
 			init_write();
-			elements.add(cmd);
+			elements.add(el);
 			end_write();
 		}
 		catch(InterruptedException e) {
@@ -29,6 +38,10 @@ public class MyBlockingQueue<T> {
 		}
 	}
 	
+	/**
+	 * Removes the element at the front of the queue and returns it.
+	 * @return element at the front of the queue
+	 */
 	public T popFront() {
 		T cmd = null;
 		try {
@@ -45,6 +58,10 @@ public class MyBlockingQueue<T> {
 		return cmd;
 	}
 	
+	/**
+	 * Starts a read critical section
+	 * @throws InterruptedException
+	 */
 	private void init_read() throws InterruptedException {
 		try {
 			mutex.lock();
@@ -60,6 +77,10 @@ public class MyBlockingQueue<T> {
 		}
 	}
 	
+	/**
+	 * Ends a read critical section
+	 * @throws InterruptedException
+	 */
 	private void end_read() throws InterruptedException {
 		try {
 			mutex.lock();
@@ -75,6 +96,10 @@ public class MyBlockingQueue<T> {
 		}
 	}
 	
+	/**
+	 * Starts a write critical section
+	 * @throws InterruptedException
+	 */
 	private void init_write() throws InterruptedException  {
 		try {
 			mutex.lock();
@@ -88,6 +113,10 @@ public class MyBlockingQueue<T> {
 		}
 	}
 	
+	/**
+	 * Ends a write critical section
+	 * @throws InterruptedException
+	 */
 	private void end_write() throws InterruptedException {
 		try {
 			mutex.lock();
@@ -105,6 +134,9 @@ public class MyBlockingQueue<T> {
 		}
 	}
 	
+	/**
+	 * Returns true when queue is full
+	 */
 	private boolean isFull() {
 		return elements.size() == MAX_SIZE;
 	}
