@@ -13,13 +13,13 @@ Le premier problème était de permettre aux différents threads CommandHandler 
 
 Le tampon de commandes est représenté par une instance de MyBlockingQueue, créé dans TCPAcceptor et par la suite transmis aux threads TCPReader. 
 Nous avons choisi de représenter une commande par la classe Command, pour une meilleure encapsulation. Même chose pour un client, représenté par une classe Client.
-Etant donné que seul un thread à la fois doit pouvoir envoyer des données sur le flux de sortie d'un client, la classe Client propose (entre autres) une méthode sendMessage synchronisée.
 
-== Souscriptions des clients à des sujets ==
-Un autre problème auquel nous avons été confronté a été celui du stockage des souscriptions d'un client, qui peut avoir souscrit à plusieurs sujets. Pour cela, nous avons créé une classe SubscriptionsStore dont une (même) instance est passée à chaque CommandHandler, et qui leur permet d'accéder aux souscriptions d'une manière sécurisée. Le fonctionnement de la classe SubscriptionsStore est décrit un peu plus bas.
+== Clients ==
 
+Nous avons également fait ce choix pour les clients, représentés par une classe Client. Pour garantir qu'un seul thread à la fois peut accéder aux flux de sortie d'un client (associé à sa socket) et aux souscriptions de ce client, la classe possède deux verrous.
 
-== Fonctionnement de SubscriptionsStore ==
+== Stockage des souscriptions ==
+
 Chaque CommandHandler doit savoir quel client est inscrit à quel sujet et doit pouvoir modifier les relations. Evidemment, cette information doit être synchronisée entre tous les CommandHandlers (ils doivent tous avoir la même modélisation de la situation à un même moment). La solution la plus simple consiste à créer une structure de données partagée par tous les CommandHandlers (SubscriptionsStore) qui gèrera elle-même les problèmes de concurrence.
 Cette structure est très spécifique à l'application (contrairement à MyBlockingQueue), elle expose les méthodes subscribe, unsubscribe et iterateSubject.
 Les deux premières font ce que leur nom indique de façon "thread-safe" en bloquant si nécessaire. La troisième méthode permet d'itérer sur chaque client d'un sujet en gérant la concurrence, c'est-à-dire que strictement tous les clients d'un sujet seront visités (la liste ne peut être modifiée par un autre thread pendant l'itération).

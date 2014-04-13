@@ -5,12 +5,23 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Represents a client
  *
  */
 public class Client { 
+
+    /**
+     *	A lock for the access to the subscriptions of the client
+     */
+    final private ReentrantLock subscriptionsLock = new ReentrantLock();
+    
+    /**
+     *	A lock for the access to the output stream of the client
+     */
+    final private ReentrantLock outputLock = new ReentrantLock();
 	
 	/**
 	 * 	The output stream to communicate with the client
@@ -48,8 +59,14 @@ public class Client {
 	 * 
 	 * @param topic
 	 */
-	public synchronized void markSubscribed(String topic) {
-		subscribedTopics.add(topic);
+	public void markSubscribed(String topic) {
+		try {
+			subscriptionsLock.lock();
+			subscribedTopics.add(topic);
+		}
+		finally {
+			subscriptionsLock.unlock();
+		}
 	}
 	
 	/**
@@ -57,8 +74,14 @@ public class Client {
 	 * 
 	 * @param topic
 	 */
-	public synchronized void markUnsubscribed(String topic) {
-		subscribedTopics.remove(topic);
+	public void markUnsubscribed(String topic) {
+		try {
+			subscriptionsLock.lock();
+			subscribedTopics.remove(topic);
+		}
+		finally {
+			subscriptionsLock.unlock();
+		}
 	}
 
 	
@@ -67,13 +90,17 @@ public class Client {
 	 * 
 	 * @param message	The message to send
 	 */
-	public synchronized void sendMessage(String message) {
+	public void sendMessage(String message) {
 		try {
+			outputLock.lock();
 			output.write((message+"\n").getBytes());
 		}
 		catch(IOException e) {
 			System.err.println("Unable to send message ["+message+"] to client");
 			System.err.println(e.getStackTrace());
+		}
+		finally {
+			outputLock.unlock();
 		}
 	}
 	
@@ -81,7 +108,14 @@ public class Client {
 	 * @return The set of all topics the client is subscribed to
 	 */
 	public synchronized Set<String> getSubscribedSubjects() {
-		return new HashSet<>(subscribedTopics);
+		try {
+			subscriptionsLock.lock();
+			return new HashSet<>(subscribedTopics);
+		}
+		finally {
+			subscriptionsLock.unlock();
+		}
+		
 	}
 	
 	/**
