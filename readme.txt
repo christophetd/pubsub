@@ -1,3 +1,10 @@
+========================================================
+===				Mini-projet de Concurrence		     ===
+===--------------------------------------------------===
+=== Hadrien Milano (224340)							 ===
+=== Christophe Tafani-Dereeper (223529)				 ===
+========================================================
+
 == Tampon de commandes ==
 
 Le premier problème était de permettre aux différents threads CommandHandler (dont le nombre est fixé grâce à la constante TCPAcceptor.NB_COMMAND_HANDLERS) de récupérer des commandes à exécuter en même temps que des threads TCPReader en ajoutent. Cela est un problème de producteurs / consommateurs classique, que nous avons choisi de résoudre en implémentant une classe BlockingQueue (MyBlockingQueue pour ne pas avoir le même nom que la classe de l'API Java) qui permet d'avoir une solution assez générale en utilisant les moniteurs, les verrous et les conditions Java. 
