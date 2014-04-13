@@ -10,7 +10,7 @@ public class TCPAcceptor implements Runnable {
 
 	public final static int LISTENING_PORT = 7676;
 	public final static int NB_COMMAND_HANDLERS = 5;
-	public final static int POOL_SIZE = 2;
+	public final static int POOL_SIZE = 5;
 	private ServerSocket server;
 	private MyBlockingQueue<Command> commandBuffer = new MyBlockingQueue<Command>();
 	//private MessageBroker broker = new MessageBroker(commandBuffer);
