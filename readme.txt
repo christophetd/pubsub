@@ -1,8 +1,8 @@
 ========================================================
-===				Mini-projet de Concurrence		     ===
+===	           Mini-projet de Concurrence            ===
 ===--------------------------------------------------===
-=== Hadrien Milano (224340)							 ===
-=== Christophe Tafani-Dereeper (223529)				 ===
+=== Hadrien Milano (224340)                          ===
+=== Christophe Tafani-Dereeper (223529)              ===
 ========================================================
 
 == Tampon de commandes ==
@@ -16,8 +16,7 @@ Nous avons choisi de représenter une commande par la classe Command, pour une m
 Etant donné que seul un thread à la fois doit pouvoir envoyer des données sur le flux de sortie d'un client, la classe Client propose (entre autres) une méthode sendMessage synchronisée.
 
 == Souscriptions des clients à des sujets ==
-Un autre problème auquel nous avons été confronté a été celui du stockage des souscriptions d'un client, qui peut avoir souscrit à plusieurs sujets. Pour cela, nous avons créé une classe SubscriptionsStore dont une instance est passée à chaque CommandHandler, et qui leur permet d'accéder aux souscriptions d'une manière sécurisée. Le fonctionnement de la classe SubscriptionsStore est décrit un peu plus bas.
-À noter que nous conservons un double mapping pour les relations "clients <-> sujets" (sujet -> clients dans SubscriptionsStore et client -> sujets dans Client) pour récupérer les clients abonnés à un sujet ou les sujets auquels est abonné un client en un temps constant (qui aurait été linéaire si le mapping n'était fait que dans un sens).
+Un autre problème auquel nous avons été confronté a été celui du stockage des souscriptions d'un client, qui peut avoir souscrit à plusieurs sujets. Pour cela, nous avons créé une classe SubscriptionsStore dont une (même) instance est passée à chaque CommandHandler, et qui leur permet d'accéder aux souscriptions d'une manière sécurisée. Le fonctionnement de la classe SubscriptionsStore est décrit un peu plus bas.
 
 
 == Fonctionnement de SubscriptionsStore ==
